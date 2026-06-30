@@ -814,3 +814,1124 @@ Notes：
 Notes：
 
 这是回归测试案例，防止海底与杠开被错误设为互斥。
+
+---
+
+# 六、DISCARD 测试案例
+
+## RC-DISCARD-001 正常出牌
+
+Title：
+
+玩家正常打出一张手牌。
+
+Related Rules：
+
+- GR-014
+
+Action：
+
+DISCARD
+
+Precondition：
+
+- 当前玩家已摸牌。
+- 当前玩家未胡牌。
+- 当前玩家处于等待出牌状态。
+
+Input：
+
+当前玩家：
+
+东家
+
+当前手牌：
+
+```text
+1万 2万 3万
+2条 3条 4条
+5条 6条 7条
+3筒 4筒 5筒
+8万 9筒
+```
+
+出牌：
+
+```text
+9筒
+```
+
+Expected：
+
+- 9筒 从东家手牌中移除。
+- 9筒 显示在弃牌区。
+- 服务器广播出牌结果。
+- 进入其他玩家响应阶段。
+
+Broadcast：
+
+```text
+DISCARD_SUCCESS
+WAIT_RESPONSE
+```
+
+Notes：
+
+普通出牌流程。
+
+---
+
+## RC-DISCARD-002 报听后出牌保持听牌
+
+Title：
+
+报听后只能打出不破坏听牌状态的牌。
+
+Related Rules：
+
+- GR-032
+- GR-034
+
+Action：
+
+DISCARD
+
+Precondition：
+
+- 当前玩家已报听。
+- 玩家出牌后仍保持听牌。
+
+Input：
+
+当前玩家：
+
+东家
+
+报听：
+
+是
+
+当前手牌：
+
+```text
+1万 2万 3万
+2条 3条 4条
+5条 6条 7条
+3筒 4筒 5筒
+8万 9筒
+```
+
+出牌：
+
+```text
+9筒
+```
+
+Expected：
+
+- 允许出牌。
+- 出牌后仍保持听牌状态。
+- 服务器进入其他玩家响应阶段。
+
+Broadcast：
+
+```text
+DISCARD_SUCCESS
+WAIT_RESPONSE
+```
+
+Notes：
+
+报听后不能换牌，但可以正常打出摸到的无关牌。
+
+---
+
+## RC-DISCARD-003 报听后禁止破坏听牌
+
+Title：
+
+报听后不得打出导致失去听牌的牌。
+
+Related Rules：
+
+- GR-032
+- GR-034
+
+Action：
+
+DISCARD
+
+Precondition：
+
+- 当前玩家已报听。
+- 出牌后将不再听牌。
+
+Input：
+
+当前玩家：
+
+东家
+
+报听：
+
+是
+
+出牌：
+
+```text
+待破坏听牌的牌
+```
+
+Expected：
+
+- 服务器拒绝出牌。
+- 玩家仍保持原手牌。
+- 游戏状态不变。
+
+Broadcast：
+
+```text
+DISCARD_FORBIDDEN_NOT_TING
+```
+
+Notes：
+
+具体牌例后续在听牌专项案例中补充。
+
+---
+
+## RC-DISCARD-004 出牌后无人响应
+
+Title：
+
+玩家出牌后无人碰杠。
+
+Related Rules：
+
+- GR-014
+- GR-015
+
+Action：
+
+DISCARD
+
+Precondition：
+
+- 东家打出一张牌。
+- 其余三家均不能碰。
+- 其余三家均不能杠。
+
+Input：
+
+出牌：
+
+```text
+9筒
+```
+
+Expected：
+
+- 出牌成功。
+- 无响应。
+- 轮到下一家摸牌。
+
+Broadcast：
+
+```text
+DISCARD_SUCCESS
+NO_RESPONSE
+NEXT_PLAYER_DRAW
+```
+
+Notes：
+
+无人响应时直接进入下一位玩家摸牌。
+
+---
+
+## RC-DISCARD-005 出牌后有人可碰
+
+Title：
+
+玩家出牌后其他玩家可以碰。
+
+Related Rules：
+
+- GR-015
+- GR-016
+
+Action：
+
+DISCARD
+
+Precondition：
+
+- 东家打出 5条。
+- 南家手中有两张 5条。
+- 南家未报听。
+
+Input：
+
+东家出牌：
+
+```text
+5条
+```
+
+南家手牌包含：
+
+```text
+5条 5条
+```
+
+Expected：
+
+- 服务器识别南家可碰。
+- 进入等待南家决策状态。
+
+Broadcast：
+
+```text
+DISCARD_SUCCESS
+CAN_PENG
+WAIT_PLAYER_DECISION
+```
+
+Notes：
+
+碰牌不是强制操作。
+
+---
+
+## RC-DISCARD-006 出牌后有人可明杠
+
+Title：
+
+玩家出牌后其他玩家可以明杠。
+
+Related Rules：
+
+- GR-022
+
+Action：
+
+DISCARD
+
+Precondition：
+
+- 东家打出 5条。
+- 南家手中有三张 5条。
+- 南家未报听。
+
+Input：
+
+东家出牌：
+
+```text
+5条
+```
+
+南家手牌包含：
+
+```text
+5条 5条 5条
+```
+
+Expected：
+
+- 服务器识别南家可明杠。
+- 进入等待南家决策状态。
+
+Broadcast：
+
+```text
+DISCARD_SUCCESS
+CAN_MING_GANG
+WAIT_PLAYER_DECISION
+```
+
+Notes：
+
+明杠不是强制操作，除非满足必须杠规则。
+
+---
+
+# 七、PENG 测试案例
+
+## RC-PENG-001 正常碰牌
+
+Title：
+
+玩家正常碰牌成功。
+
+Related Rules：
+
+- GR-015
+- GR-016
+
+Action：
+
+PENG
+
+Precondition：
+
+- 上一名玩家刚打出 5条。
+- 当前玩家手中有两张 5条。
+- 当前玩家未报听。
+
+Input：
+
+出牌：
+
+```text
+5条
+```
+
+当前玩家手牌包含：
+
+```text
+5条 5条
+```
+
+Expected：
+
+- 碰牌成功。
+- 三张 5条 形成公开碰牌组。
+- 当前玩家获得出牌权。
+- 当前玩家必须打出一张牌。
+
+Broadcast：
+
+```text
+PENG_SUCCESS
+WAIT_DISCARD
+```
+
+Notes：
+
+碰牌后必须出牌。
+
+---
+
+## RC-PENG-002 没有对子不能碰
+
+Title：
+
+玩家手中不足两张相同牌时禁止碰牌。
+
+Related Rules：
+
+- GR-015
+
+Action：
+
+PENG
+
+Precondition：
+
+- 上一名玩家刚打出 5条。
+- 当前玩家手中只有一张 5条。
+
+Input：
+
+出牌：
+
+```text
+5条
+```
+
+当前玩家手牌包含：
+
+```text
+5条
+```
+
+Expected：
+
+- 服务器拒绝碰牌。
+- 游戏状态不变。
+
+Broadcast：
+
+```text
+PENG_FORBIDDEN
+```
+
+Notes：
+
+必须拥有两张相同牌才能碰。
+
+---
+
+## RC-PENG-003 报听后禁止碰牌
+
+Title：
+
+玩家报听后不得碰牌。
+
+Related Rules：
+
+- GR-019
+- GR-034
+
+Action：
+
+PENG
+
+Precondition：
+
+- 当前玩家已报听。
+- 其他玩家打出的牌，当前玩家本可碰。
+
+Input：
+
+出牌：
+
+```text
+5条
+```
+
+当前玩家手牌包含：
+
+```text
+5条 5条
+```
+
+报听：
+
+是
+
+Expected：
+
+- 服务器拒绝碰牌。
+- 玩家听牌状态不变。
+
+Broadcast：
+
+```text
+PENG_FORBIDDEN_AFTER_TING
+```
+
+Notes：
+
+报听后只能杠，不能碰。
+
+---
+
+## RC-PENG-004 碰牌组不得拆分
+
+Title：
+
+碰牌成功后公开牌组不得拆分。
+
+Related Rules：
+
+- GR-016
+- GR-029
+
+Action：
+
+PENG
+
+Precondition：
+
+- 玩家碰 5条 成功。
+
+Input：
+
+碰牌组：
+
+```text
+5条 5条 5条
+```
+
+Expected：
+
+- 三张 5条 锁定为公开牌组。
+- 不得重新进入手牌。
+- 不得拆分组成顺子。
+
+Broadcast：
+
+```text
+PENG_LOCKED
+```
+
+Notes：
+
+碰牌组为固定牌组。
+
+---
+
+## RC-PENG-005 碰牌后必须出牌
+
+Title：
+
+碰牌后不能跳过出牌。
+
+Related Rules：
+
+- GR-016
+
+Action：
+
+PENG
+
+Precondition：
+
+- 玩家碰牌成功。
+
+Input：
+
+碰牌：
+
+```text
+5条
+```
+
+Expected：
+
+- 玩家获得出牌权。
+- 服务器进入 WAIT_DISCARD。
+- 玩家必须打出一张手牌。
+
+Broadcast：
+
+```text
+PENG_SUCCESS
+WAIT_DISCARD
+```
+
+Notes：
+
+碰牌不会直接结束回合。
+
+---
+
+---
+
+# 八、MING_GANG 测试案例
+
+## RC-MING-GANG-001 正常明杠
+
+Title：
+
+玩家正常明杠。
+
+Related Rules：
+
+- GR-022
+
+Action：
+
+MING_GANG
+
+Precondition：
+
+- 上家打出一张牌。
+- 当前玩家手中已有三张相同牌。
+- 当前玩家未报听。
+
+Input：
+
+上家出牌：
+
+```text
+8万
+```
+
+当前玩家手牌：
+
+```text
+8万
+8万
+8万
+```
+
+Expected：
+
+- 明杠成功。
+- 四张牌移动至公开区域。
+- 当前玩家获得杠牌奖励。
+- 从杠尾继续摸牌。
+
+Pattern：
+
+N/A
+
+Events：
+
+杠牌
+
+Flower Calculation：
+
+```text
+明杠 +2
+```
+
+Broadcast：
+
+```text
+MING_GANG_SUCCESS
+
+DRAW_FROM_GANG
+```
+
+Notes：
+
+标准明杠流程。
+
+---
+
+## RC-MING-GANG-002 报听后允许明杠
+
+Title：
+
+报听后允许明杠。
+
+Related Rules：
+
+- GR-034
+
+Action：
+
+MING_GANG
+
+Precondition：
+
+玩家已报听。
+
+明杠后仍保持听牌。
+
+Expected：
+
+允许明杠。
+
+允许继续摸杠尾牌。
+
+Broadcast：
+
+```text
+MING_GANG_SUCCESS
+```
+
+Notes：
+
+必须再次验证：
+
+仍然听牌。
+
+---
+
+## RC-MING-GANG-003 报听后禁止失听明杠
+
+Title：
+
+报听后明杠导致失听。
+
+Related Rules：
+
+- GR-034
+
+Action：
+
+MING_GANG
+
+Expected：
+
+服务器拒绝明杠。
+
+Broadcast：
+
+```text
+MING_GANG_FORBIDDEN
+```
+
+Notes：
+
+任何杠牌不得破坏听牌。
+
+---
+
+## RC-MING-GANG-004 明杠后允许杠开
+
+Title：
+
+明杠后摸牌胡牌。
+
+Related Rules：
+
+- GR-049
+
+Action：
+
+MING_GANG
+
+Expected：
+
+若杠尾摸牌胡牌。
+
+Event：
+
+```text
+GANG_KAI
+```
+
+成立。
+
+Flower Calculation：
+
+```text
+杠开 +2
+```
+
+---
+
+# 九、BU_GANG 测试案例
+
+## RC-BU-GANG-001 正常补杠
+
+Title：
+
+碰牌后补杠。
+
+Related Rules：
+
+- GR-023
+
+Action：
+
+BU_GANG
+
+Precondition：
+
+已经碰：
+
+```text
+5条
+```
+
+之后摸到：
+
+```text
+5条
+```
+
+Expected：
+
+碰牌升级为补杠。
+
+Broadcast：
+
+```text
+BU_GANG_SUCCESS
+
+DRAW_FROM_GANG
+```
+
+Flower Calculation：
+
+```text
+补杠 +2
+```
+
+---
+
+## RC-BU-GANG-002 补杠后必须出牌
+
+Title：
+
+补杠完成继续游戏。
+
+Related Rules：
+
+- GR-023
+
+Action：
+
+BU_GANG
+
+Expected：
+
+杠尾摸牌。
+
+然后：
+
+玩家必须继续打一张牌。
+
+Notes：
+
+补杠不是直接结束回合。
+
+---
+
+## RC-BU-GANG-003 报听后允许补杠
+
+Title：
+
+报听后补杠。
+
+Related Rules：
+
+- GR-034
+
+Action：
+
+BU_GANG
+
+Expected：
+
+若仍保持听牌。
+
+允许补杠。
+
+---
+
+## RC-BU-GANG-004 报听后禁止失听补杠
+
+Title：
+
+补杠导致失听。
+
+Expected：
+
+服务器拒绝补杠。
+
+Broadcast：
+
+```text
+BU_GANG_FORBIDDEN
+```
+
+---
+
+## RC-BU-GANG-005 不存在抢杠胡
+
+Title：
+
+补杠过程中无人抢杠。
+
+Related Rules：
+
+- GR-023
+
+Action：
+
+BU_GANG
+
+Expected：
+
+服务器不会进入：
+
+```text
+QIANG_GANG_HU
+```
+
+流程。
+
+Notes：
+
+本麻将只有自摸。
+
+不存在抢杠胡。
+
+---
+
+# 十、AN_GANG 测试案例
+
+## RC-AN-GANG-001 正常暗杠
+
+Title：
+
+玩家正常暗杠。
+
+Related Rules：
+
+- GR-024
+
+Action：
+
+AN_GANG
+
+Precondition：
+
+玩家拥有：
+
+```text
+6筒
+6筒
+6筒
+6筒
+```
+
+Expected：
+
+暗杠成功。
+
+Flower Calculation：
+
+```text
+暗杠 +4
+```
+
+Broadcast：
+
+```text
+AN_GANG_SUCCESS
+
+DRAW_FROM_GANG
+```
+
+---
+
+## RC-AN-GANG-002 玩家可放弃暗杠
+
+Title：
+
+暗杠不是强制操作。
+
+Related Rules：
+
+- GR-024
+
+Action：
+
+AN_GANG
+
+Expected：
+
+玩家可以：
+
+选择暗杠。
+
+也可以：
+
+继续游戏。
+
+Broadcast：
+
+```text
+WAIT_PLAYER_DECISION
+```
+
+Notes：
+
+暗杠永远不是必须操作。
+
+---
+
+## RC-AN-GANG-003 报听后允许暗杠
+
+Title：
+
+报听后暗杠。
+
+Related Rules：
+
+- GR-034
+
+Action：
+
+AN_GANG
+
+Expected：
+
+若仍保持听牌。
+
+允许暗杠。
+
+---
+
+## RC-AN-GANG-004 报听后禁止失听暗杠
+
+Title：
+
+暗杠导致失听。
+
+Expected：
+
+服务器拒绝暗杠。
+
+Broadcast：
+
+```text
+AN_GANG_FORBIDDEN
+```
+
+---
+
+## RC-AN-GANG-005 暗杠后杠开
+
+Title：
+
+暗杠后摸牌胡牌。
+
+Related Rules：
+
+- GR-049
+
+Action：
+
+AN_GANG
+
+Expected：
+
+Event：
+
+```text
+GANG_KAI
+```
+
+Flower Calculation：
+
+```text
+杠开 +2
+```
+
+---
+
+## RC-AN-GANG-006 暗杠形成七对特殊判断
+
+Title：
+
+暗杠作为两对参与七对计算。
+
+Related Rules：
+
+- SP-011
+
+Action：
+
+WIN
+
+Precondition：
+
+玩家胡七对。
+
+手牌存在暗杠。
+
+Expected：
+
+七对正常成立。
+
+Flower Calculation：
+
+```text
+七对
+
++
+
+暗杠组成两对
+
++
+
+额外10张花
+```
+
+Notes：
+
+这是你定义的特殊规则。
+
+属于本麻将特色玩法。
+
+---
