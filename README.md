@@ -1,4 +1,45 @@
-# Tianchang Mahjong Mini Program
+# 天长麻将（Tianchang Mahjong）
+
+## 项目状态
+
+**Version**
+
+v1.0.0
+
+**Status**
+
+Rule Freeze（规则冻结）
+
+**Current Progress**
+
+- ✅ 00_Project_Charter
+- ✅ 01_Product_PRD
+- ✅ 02_Game_Rules
+- ✅ 03_Scoring_Table
+- ✅ 04_Rule_Cases
+- ⏳ 05_Message_Protocol
+- ⏳ 06_State_Machine
+- ⏳ 07_Data_Model
+- ⏳ 08_API
+- ⏳ 09_Architecture
+
+---
+
+## 项目目标
+
+构建一套可直接交付 AI（Codex）开发的棋牌游戏服务器规范。
+
+包括：
+
+- 产品需求（PRD）
+- 游戏规则（Rules）
+- 计分规则（Scoring）
+- 测试规范（Rule Cases）
+- 消息协议（Message Protocol）
+- 状态机（State Machine）
+- 数据模型（Data Model）
+- API
+- 系统架构（Architecture）# Tianchang Mahjong Mini Program
 
 ## 项目简介
 
