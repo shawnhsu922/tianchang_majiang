@@ -1,256 +1,158 @@
-# Tianchang Mahjong Mini Program
+# 天长麻将微信小程序（Tianchang Mahjong Mini Program）
 
 # Documentation Index
 
-Version：1.0.0
+Version：1.1.0
 
-Last Updated：2026-06-30
+Last Updated：2026-07-01
 
 ---
 
 # 项目文档导航
 
-本项目采用 **Documentation Driven Development（文档驱动开发）**。
+本项目采用 Documentation Driven Development（文档驱动开发）。
 
 所有开发必须严格按照文档进行。
 
 不得直接修改代码。
 
+不得自行新增规则。
+
 ---
 
-# 阅读顺序（必须遵守）
+# 文档状态总览
 
-第一次进入项目：
+| 编号 | 文件 | 说明 | 状态 |
+|------|------|------|------|
+| — | README.md | 项目介绍与导航 | ✅ 完成 |
+| 00 | 00_Project_Charter.md | 项目总纲、原则、技术路线 | ✅ 完成 |
+| 01 | 01_Product_PRD.md | 产品需求、页面、功能列表 | ✅ 完成 |
+| 02 | 02_Game_Rules.md | 麻将规则唯一来源 | ✅ 完成 |
+| 03 | 03_Scoring_Table.md | 花数配置唯一来源（定稿） | ✅ 定稿 |
+| 04 | 04_Rule_Cases.md | 服务器规则测试规范 | ✅ 完成 |
+| 05 | 05_Message_Protocol.md | WebSocket 消息协议 | ✅ 完成 |
+| 06 | 06_State_Machine.md | 游戏状态机 | ✅ 完成 |
+| 07 | 07_Architecture.md | 系统架构、目录结构、编码规范 | ✅ 完成 |
+| 08 | 08_Database.md | 数据库表设计 | ✅ 完成 |
+
+---
+
+# 阅读顺序（第一次进入项目必须遵守）
 
 README.md
-
 ↓
-
-00_Project_Charter.md
-
+00_Project_Charter.md　　了解项目目标和原则
 ↓
-
-01_Product_PRD.md
-
+01_Product_PRD.md　　　　了解产品需求和功能范围
 ↓
-
-02_Game_Rules.md
-
+02_Game_Rules.md　　　　 了解所有麻将规则
 ↓
-
-03_Rule_Cases.md
-
+03_Scoring_Table.md　　　了解花数计算规则（唯一来源）
 ↓
-
-04_State_Machine.md
-
+04_Rule_Cases.md　　　　 了解所有规则测试案例
 ↓
-
-05_Score_Engine.md
-
+05_Message_Protocol.md　 了解客户端与服务器通信协议
 ↓
-
-06_Network_Protocol.md
-
+06_State_Machine.md　　　了解游戏状态流转
 ↓
-
-07_Database.md
-
+07_Architecture.md　　　 了解系统架构和目录结构
 ↓
-
-08_UI_Design.md
-
+08_Database.md　　　　　 了解数据库设计
 ↓
-
-09_Development_Guide.md
-
-↓
-
-10_Test_Cases.md
-
----
-
-# 当前项目状态
-
-| 文档 | 状态 |
-|------|------|
-| README | ✅ |
-| 00_Project_Charter | ✅ |
-| 01_Product_PRD | ✅ |
-| 02_Game_Rules | ⏳ |
-| 03_Rule_Cases | ⏳ |
-| 04_State_Machine | ⏳ |
-| 05_Score_Engine | ⏳ |
-| 06_Network_Protocol | ⏳ |
-| 07_Database | ⏳ |
-| 08_UI_Design | ⏳ |
-| 09_Development_Guide | ⏳ |
-| 10_Test_Cases | ⏳ |
+开始开发
 
 ---
 
 # 当前开发阶段
 
-Phase 1
+Phase：准备开发
 
-项目设计（Project Design）
-
-当前任务：
-
-> 编写 Game Rules（游戏规则）
+文档全部完成，规则已冻结，可以交付 Codex 开发。
 
 ---
 
-# 文档职责
+# 文档职责说明
 
-README
+## README.md
 
-项目介绍。
+项目总介绍。快速了解项目背景、目标、技术路线。
 
----
+## 00_Project_Charter.md
 
-00_Project_Charter
+项目宪章。定义项目使命、目标、原则和范围。所有开发决策必须符合本文档原则。
 
-项目目标。
+## 01_Product_PRD.md
 
-项目原则。
+产品需求文档。定义功能列表、页面结构、验收标准。
 
-技术路线。
+## 02_Game_Rules.md
 
----
+麻将规则唯一来源（Single Source of Truth）。
 
-01_Product_PRD
+所有游戏逻辑必须以本文档为准。禁止在其他文档或代码中另行定义规则。
 
-产品需求。
+## 03_Scoring_Table.md
 
-页面。
+花数计算唯一来源（Single Source of Truth）。
 
-流程。
+所有花数均以本文档为准。禁止在代码中硬编码花数。本文档已定稿，不得修改。
 
-功能。
+## 04_Rule_Cases.md
 
----
+服务器规则测试规范。所有 P0 测试案例必须通过，方可上线。新增规则必须同步补充测试案例。
 
-02_Game_Rules
+补充说明——大绝判定逻辑（以代码实现为准，优先级高于本文档案例描述）：
 
-麻将规则。
+- 单边大绝（+10）：实际摸到的那张牌是绝张即成立，无论当前听几张
+- 双边大绝（+20）：有且仅听两张，两张均已绝张，摸到任意一张成立
+- 三边大绝（+30）：有且仅听三张，三张均已绝张，摸到任意一张成立
+- 绝张判定依据：仅统计公开碰牌和明杠，不统计其他玩家手中暗刻
 
-所有规则唯一来源（Single Source of Truth）。
+## 05_Message_Protocol.md
 
----
+WebSocket 消息协议定义。客户端和服务器必须严格遵守本协议。禁止发送协议外消息。
 
-03_Rule_Cases
+## 06_State_Machine.md
 
-规则测试案例。
+游戏状态机定义。服务器所有状态流转必须以本文档为准。每个状态只允许处理指定消息。
 
-每一个规则至少一个测试案例。
+## 07_Architecture.md
 
----
+系统架构文档。定义目录结构、模块职责、数据结构、编码规范。Codex 开发前必须完整阅读。
 
-04_State_Machine
+## 08_Database.md
 
-游戏状态流转。
-
-每个阶段允许的操作。
-
----
-
-05_Score_Engine
-
-计分系统。
-
-所有花数计算。
-
----
-
-06_Network_Protocol
-
-WebSocket。
-
-消息定义。
-
-同步流程。
-
----
-
-07_Database
-
-数据库设计。
-
----
-
-08_UI_Design
-
-页面设计。
-
-UI规范。
-
----
-
-09_Development_Guide
-
-开发规范。
-
-代码规范。
-
-目录规范。
-
-Git规范。
-
----
-
-10_Test_Cases
-
-集成测试。
-
-性能测试。
-
-异常测试。
+数据库设计文档。定义所有表结构和数据流。禁止在文档之外新增表或字段。
 
 ---
 
 # AI 开发要求
 
-ChatGPT
+## Codex 必须遵守
 
-负责：
+1. 完整阅读所有文档后再开始开发
+2. 不得修改游戏规则（02_Game_Rules.md）
+3. 不得修改花数（03_Scoring_Table.md）
+4. 不得自行新增功能
+5. 不得简化规则
+6. 所有花数计算必须来自 03_Scoring_Table.md
+7. 所有状态流转必须遵守 06_State_Machine.md
+8. 所有消息格式必须遵守 05_Message_Protocol.md
+9. 目录结构必须遵守 07_Architecture.md
+10. 每完成一个模块，必须通过 04_Rule_Cases.md 中对应的 P0 测试案例
 
-- 产品设计
-- 游戏规则
-- 技术架构
-- 文档维护
+## 禁止事项
 
-Codex
-
-负责：
-
-- 编码实现
-- Bug 修复
-- 单元测试
-- 按照文档开发
-
-任何 AI：
-
-不得修改游戏规则。
-
-不得自行增加功能。
-
-不得删除已有规则。
-
-必须严格遵守 docs 文件夹中的文档。
+- 禁止修改已定稿的规则
+- 禁止在代码中硬编码花数
+- 禁止客户端自行计算规则（胡牌/碰杠/花数）
+- 禁止跳过测试直接交付
 
 ---
 
-# 下一步
+# 版本历史
 
-当前完成：
-
-✅ README
-
-✅ Project Charter
-
-✅ Product PRD
-
-下一步：
-
-➡ 编写 Game Rules
+| 版本 | 日期 | 说明 |
+|------|------|------|
+| 1.0.0 | 2026-06-30 | 初始版本 |
+| 1.1.0 | 2026-07-01 | 补充 06/07/08，更新编号体系，补充大绝判定说明 |
