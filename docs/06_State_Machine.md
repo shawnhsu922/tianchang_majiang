@@ -6,7 +6,7 @@ Version：1.0.0
 
 Status：Draft
 
-Author：Shawn Hsu & Claude
+Author：Shawn Hsu & AI Assistant
 
 ---
 
