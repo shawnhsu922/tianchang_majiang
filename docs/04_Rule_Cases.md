@@ -5956,29 +5956,17 @@ Notes：
 
 ## RC-WIN-035 单边大绝
 
-Priority：
+Priority：P0
 
-P0
+Title：单边大绝判定。
 
-Title：
+Related Rules：AD-01
 
-单边大绝判定。
+Action：WIN
 
-Related Rules：
+Purpose：验证单边大绝识别。
 
-- SP-023
-
-Action：
-
-WIN
-
-Purpose：
-
-验证单边大绝识别。
-
-Precondition：
-
-玩家已经报听。
+Precondition：玩家已经报听，可胡多张，摸到其中一张绝张。
 
 Input：
 
@@ -5995,11 +5983,11 @@ Input：
 
 11万
 
-1条已被碰。
+可胡：1条、4条
 
-自摸：
+其中1条已被其他玩家碰光（公开碰牌可见）。
 
-1条
+自摸：1条
 ```
 
 Expected：
@@ -6007,17 +5995,13 @@ Expected：
 服务器识别：
 
 ```text
-Bonus：
-
-单边大绝
+Bonus：单边大绝
 ```
 
 Flower Calculation：
 
 ```text
-单边大绝
-
-10张花
+正常胡牌花数 + 单边大绝 +10
 ```
 
 Broadcast：
@@ -6028,39 +6012,31 @@ WIN_SUCCESS
 
 Notes：
 
-只有唯一可胡牌。
+单边大绝要求：
 
-且该牌已经全部绝张。
+1、能胡多张（本例可胡1条或4条）。
 
-形成单边大绝。
+2、实际摸到的那张是绝张。
+
+3、绝张判定仅依据公开碰牌和明杠，不统计其他玩家手中暗刻。
+
+若本例只能胡4条（丫子），且4条被碰光，则应判定为天外来客，不得判定为单边大绝。
 
 ---
 
 ## RC-WIN-036 双边大绝
 
-Priority：
+Priority：P0
 
-P0
+Title：双边大绝判定。
 
-Title：
+Related Rules：AD-02
 
-双边大绝判定。
+Action：WIN
 
-Related Rules：
+Purpose：验证双边大绝识别。
 
-- SP-024
-
-Action：
-
-WIN
-
-Purpose：
-
-验证双边大绝识别。
-
-Precondition：
-
-玩家已经报听。
+Precondition：玩家已经报听，有且仅胡两张，两张均已绝张。
 
 Input：
 
@@ -6077,13 +6053,11 @@ Input：
 
 11万
 
-1条已被碰。
+可胡：1条、4条（仅此两张）
 
-4条已被碰。
+1条已被碰光，4条已被碰光。
 
-自摸：
-
-4条
+自摸：4条
 ```
 
 Expected：
@@ -6091,17 +6065,13 @@ Expected：
 服务器识别：
 
 ```text
-Bonus：
-
-双边大绝
+Bonus：双边大绝
 ```
 
 Flower Calculation：
 
 ```text
-双边大绝
-
-20张花
+正常胡牌花数 + 双边大绝 +20
 ```
 
 Broadcast：
@@ -6112,43 +6082,31 @@ WIN_SUCCESS
 
 Notes：
 
-必须只有：
+双边大绝要求：
 
-1条、4条
+1、有且仅听两张（唯一性）。
 
-两张可胡。
+2、两张均已绝张（公开可见）。
 
-且两张均已绝张。
+3、摸到任意一张均算双边大绝。
 
-否则不得判定双边大绝。
+若还能胡第三张，则不得判定双边大绝，只能按单边大绝或无大绝判定。
 
 ---
 
 ## RC-WIN-037 三边大绝
 
-Priority：
+Priority：P0
 
-P0
+Title：三边大绝判定。
 
-Title：
+Related Rules：AD-03
 
-三边大绝判定。
+Action：WIN
 
-Related Rules：
+Purpose：验证三边大绝识别。
 
-- SP-025
-
-Action：
-
-WIN
-
-Purpose：
-
-验证三边大绝识别。
-
-Precondition：
-
-玩家已经报听。
+Precondition：玩家已经报听，有且仅胡三张，三张均已绝张。
 
 Input：
 
@@ -6163,11 +6121,11 @@ Input：
 
 11筒
 
-1条、4条、7条均已绝张。
+可胡：1条、4条、7条（仅此三张）
 
-自摸：
+1条、4条、7条均已绝张（公开可见）。
 
-4条
+自摸：4条
 ```
 
 Expected：
@@ -6175,17 +6133,13 @@ Expected：
 服务器识别：
 
 ```text
-Bonus：
-
-三边大绝
+Bonus：三边大绝
 ```
 
 Flower Calculation：
 
 ```text
-三边大绝
-
-30张花
+正常胡牌花数 + 三边大绝 +30
 ```
 
 Broadcast：
@@ -6196,21 +6150,89 @@ WIN_SUCCESS
 
 Notes：
 
-必须满足：
+三边大绝要求：
 
-全部可胡牌仅有：
+1、有且仅听三张（唯一性）。
 
-1条
+2、三张均已绝张（公开可见）。
 
-4条
+3、摸到任意一张均算三边大绝。
 
-7条
-
-且三张均已绝张。
-
-否则不得判定三边大绝。
+若还能胡第四张，则不得判定三边大绝。
 
 ---
+
+## RC-WIN-035B 天外来客与单边大绝的区别
+
+Priority：P0
+
+Title：天外来客不得判定为单边大绝。
+
+Related Rules：SP-016，AD-01
+
+Action：WIN
+
+Purpose：防止混淆天外来客与单边大绝。
+
+Input：
+
+```text
+手牌：
+
+35条
+
+123万
+
+456万
+
+789筒
+
+11万
+
+可胡：4条（仅此一张，丫子牌型）
+
+4条已被碰光。
+
+自摸：4条
+```
+
+Expected：
+
+服务器识别：
+
+```text
+Pattern：天外来客
+```
+
+Flower Calculation：
+
+```text
+天外来客 45张花
+```
+
+不得识别：
+
+```text
+Bonus：单边大绝
+```
+
+Broadcast：
+
+```text
+WIN_SUCCESS
+```
+
+Notes：
+
+天外来客定义：
+
+丫子牌型（只能胡唯一一张），且该张已被碰光，摸到胡牌。
+
+天外来客是独立牌型，不与大绝叠加。
+
+单边大绝必须满足：能胡多张，摸到其中绝张。
+
+两者互斥，不得同时成立。
 
 ## RC-WIN-038 暗绝
 
