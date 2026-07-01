@@ -185,6 +185,7 @@ SETTLEMENT
   "roomId": "123456",
   "gameId": "game_000001"
 }
+```
 
 ---
 
